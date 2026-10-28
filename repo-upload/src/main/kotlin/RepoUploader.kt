@@ -15,18 +15,13 @@ class RepoUploader {
         if(!repoDir.exists()) {
             repoPath = Files.createDirectory(repoDir.toPath())
             println("----------------------------------")
-            println("root folder created at $repoPath")
+            println("root folder created at $rootPath")
             println("----------------------------------")
 
-            createRootConfig()
+            createRootConfig(repoPath)
         }else{
             repoPath = repoDir.toPath()
         }
-
-        val scanner : Scanner = Scanner(System.`in`)
-
-        //val filePath : String = getFilePath(scanner)
-        //val nameParts = setFileName(scanner)
 
         val fullPath = repoPath.resolve(nameParts.first).resolve(nameParts.second).resolve(nameParts.third)
         fullPath.createDirectories()
@@ -37,66 +32,52 @@ class RepoUploader {
         try{
             file = File(filePath)
             file.copyTo(File(fullPath.resolve(newFileName).toString()), false)
-            generateFileConfig(nameParts)
+            generateFileConfig(nameParts, fullPath, newFileName)
 
         }catch(e : Exception){
             println(e.message)
         }finally {
             if(file != null) {
-                println("Uploading ${file.name} to ${fullPath.toString()} ...")
+                println("Uploading ${file.name} to $fullPath ...")
             }
         }
 
     }
 
-    fun createRootConfig(){
-        val rootConfig : Gson = Gson()
+    fun createRootConfig(repoPath : Path) {
+        val gson : Gson = Gson()
 
         val allowedExtensions : Array<String> = arrayOf(".rar",".zip",".json",".jar")
-        rootConfig.toJson(allowedExtensions)
 
         val scopes = arrayOf(
             mapOf("name" to "compile", "transitive" to "true"),
             mapOf("name" to "runtime", "transitive" to "true"),
             mapOf("name" to "test", "transitive" to "false"))
-        rootConfig.toJson(scopes)
+
+        val jsonMap =  mapOf(
+            "allowedExtensions" to allowedExtensions,
+            "scopes" to scopes
+        )
+
+        val rootConfig = gson.toJson(jsonMap)
+
+        val targetFile = File(repoPath.toFile(), "repo_config.json")
+        targetFile.writeText(rootConfig)
     }
 
-    fun generateFileConfig(nameParts : Triple<String,String,String>) {
-        val fileConfig : Gson = Gson()
+    fun generateFileConfig(nameParts : Triple<String,String,String>, fullPath : Path, newFileName : String) {
+        val gson : Gson = Gson()
 
-        fileConfig.toJson(mapOf("group" to nameParts.first))
-        fileConfig.toJson(mapOf("project" to nameParts.second))
-        fileConfig.toJson(mapOf("version" to nameParts.third))
+        val jsonMap =  mapOf(
+            "group" to nameParts.first,
+            "project" to nameParts.second,
+            "version" to nameParts.third
+        )
 
-    }
+        val fileConfig = gson.toJson(jsonMap)
 
-    fun getFilePath(scanner : Scanner): String{
-        var filePath : String = ""
+        val targetFile = File(fullPath.toFile(), "$newFileName.json")
+        targetFile.writeText(fileConfig)
 
-        do {
-            println("Enter path to file:")
-            filePath = scanner.nextLine()
-            if(filePath == ""){
-                println("path can not be null")
-            }
-        }while(filePath == "")
-
-        return filePath
-    }
-
-    fun setFileName(scanner: Scanner) : Triple<String,String, String> {
-        var groupName : String? = null
-        var projectName : String? = null
-        var version : String? = null
-
-        println("groupName: ")
-        groupName = scanner.nextLine()
-        println("projectName: ")
-        projectName = scanner.nextLine()
-        println("version: ")
-        version = scanner.nextLine()
-
-        return Triple(groupName, projectName, version)
     }
 }

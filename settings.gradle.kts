@@ -24,3 +24,4 @@ include(":utils")
 
 rootProject.name = "repo-project"
 include("repo-upload")
+include("testuploader")
