@@ -7,12 +7,18 @@ abstract class RepoUploader() {
 
     abstract val type : RepoType
 
-    fun upload(filePath: String, nameParts: Triple<String, String, String>) {
+    abstract fun initializeRepository() : Path
+
+    fun upload(filePath: String, nameParts: Triple<String, String, String>, dependencies: Array<String>) {
 
         val repoPath = initializeRepository()
-        createRootConfig(repoPath)
 
-        val fullPath = repoPath.resolve(nameParts.first).resolve(nameParts.second).resolve(nameParts.third)
+        if(!checkDependencies(dependencies, repoPath)){
+            print("Missing dependencies in the repository")
+            return
+        }
+
+        val fullPath = getFullPath(nameParts, repoPath)
         fullPath.createDirectories()
 
         val newFileName = "${nameParts.first}-${nameParts.second}-${nameParts.third}"
@@ -21,7 +27,7 @@ abstract class RepoUploader() {
         try{
             file = File(filePath)
             file.copyTo(File(fullPath.resolve(newFileName).toString()), false)
-            generateFileConfig(nameParts, fullPath, newFileName)
+            generateFileConfig(nameParts, fullPath, newFileName, dependencies)
 
         }catch(e : Exception){
             println(e.message)
@@ -30,14 +36,38 @@ abstract class RepoUploader() {
                 println("Uploading ${file.name} to $fullPath ...")
             }
         }
-
-
     }
 
-    abstract fun initializeRepository() : Path
-    //abstract fun createRootConfig(repoPath : Path)
+    fun getFullPath(nameParts: Triple<String, String, String>, repoPath: Path) : Path {
+        return repoPath.resolve(nameParts.first).resolve(nameParts.second).resolve(nameParts.third)
+    }
 
-    fun createRootConfig(repoPath : Path) {
+    fun checkNestedFolders(currentPath: File, parts: Array<String>, fileName : String, index: Int = 0) : Boolean {
+        if(index > parts.size - 1) {
+            val targetFile = File(currentPath, fileName)
+            return targetFile.exists() && targetFile.isFile
+        }
+
+        val nextFolder = currentPath.resolve(parts[index])
+
+        return nextFolder.exists() && checkNestedFolders(nextFolder, parts, fileName, index + 1)
+    }
+
+    fun checkDependencies(dependencies: Array<String>, repoPath: Path) : Boolean {
+        var exists = false
+        if(dependencies.isEmpty()) {
+            exists = true
+        }
+        dependencies.forEach { dependency ->
+            var nameParts = dependency.split("-").toTypedArray()
+            exists = checkNestedFolders(repoPath.toFile(), nameParts, dependency)
+            if(!exists) return false
+        }
+
+        return exists
+    }
+
+    protected fun createRootConfig(repoPath : Path) {
         val gson : Gson = Gson()
 
         val allowedExtensions : Array<String> = arrayOf(".rar",".zip",".json",".jar")
@@ -58,13 +88,14 @@ abstract class RepoUploader() {
         targetFile.writeText(rootConfig)
     }
 
-    fun generateFileConfig(nameParts : Triple<String,String,String>, fullPath : Path, newFileName : String) {
+    private fun generateFileConfig(nameParts : Triple<String,String,String>, fullPath : Path, newFileName : String, dependencies: Array<String>) {
         val gson : Gson = Gson()
 
         val jsonMap =  mapOf(
             "group" to nameParts.first,
             "project" to nameParts.second,
-            "version" to nameParts.third
+            "version" to nameParts.third,
+            "dependencies" to dependencies
         )
 
         val fileConfig = gson.toJson(jsonMap)

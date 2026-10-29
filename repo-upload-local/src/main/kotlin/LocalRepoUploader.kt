@@ -18,6 +18,7 @@ class LocalRepoUploader() : RepoUploader() {
             println("root folder created at $rootPath")
             println("----------------------------------")
 
+            createRootConfig(repoPath!!)
         }else{
             repoPath = repoDir.toPath()
         }
