@@ -7,11 +7,10 @@ version = "0.0.1"
 
 repositories {
     mavenCentral()
-    mavenLocal()
 }
 
 dependencies {
-    implementation("rs.raf.sk:repouploader:0.0.1")
+    implementation(project(":repo-upload-spec"))
 }
 
 kotlin {

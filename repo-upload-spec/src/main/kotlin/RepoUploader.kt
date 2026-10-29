@@ -1,26 +1,16 @@
 import com.google.gson.Gson
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import kotlin.io.path.createDirectories
 
-class RepoUploader {
-    val rootPath: Path = Paths.get(System.getProperty("user.home"), "Desktop")
+abstract class RepoUploader() {
+
+    abstract val type : RepoType
 
     fun upload(filePath: String, nameParts: Triple<String, String, String>) {
-        val repoDir = rootPath.resolve("repo_").toFile()
-        var repoPath : Path? = null
-        if(!repoDir.exists()) {
-            repoPath = Files.createDirectory(repoDir.toPath())
-            println("----------------------------------")
-            println("root folder created at $rootPath")
-            println("----------------------------------")
 
-            createRootConfig(repoPath)
-        }else{
-            repoPath = repoDir.toPath()
-        }
+        val repoPath = initializeRepository()
+        createRootConfig(repoPath)
 
         val fullPath = repoPath.resolve(nameParts.first).resolve(nameParts.second).resolve(nameParts.third)
         fullPath.createDirectories()
@@ -41,7 +31,11 @@ class RepoUploader {
             }
         }
 
+
     }
+
+    abstract fun initializeRepository() : Path
+    //abstract fun createRootConfig(repoPath : Path)
 
     fun createRootConfig(repoPath : Path) {
         val gson : Gson = Gson()

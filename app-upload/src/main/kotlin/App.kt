@@ -2,17 +2,22 @@ package rs.raf.sk
 
 import java.util.Scanner
 import RepoUploader
+import java.util.ServiceLoader
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 fun main() {
-    val ru = RepoUploader()
     val scanner = Scanner(System.`in`)
 
     val filePath = getFilePath(scanner)
     val nameParts = setFileName(scanner)
 
-    ru.upload(filePath, nameParts)
+    val serviceLoader = ServiceLoader.load(RepoUploader::class.java)
+    val exporterServices = mutableMapOf<String,RepoUploader> ()
+
+    serviceLoader.forEach{
+            service -> exporterServices.put(service.type.toString(), service)
+    }
+
+    exporterServices.get(RepoType.LOCAL.toString())!!.upload(filePath,nameParts)
 }
 
 fun getFilePath(scanner : Scanner): String{

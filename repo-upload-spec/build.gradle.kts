@@ -16,18 +16,6 @@ dependencies {
     implementation("com.google.code.gson:gson:2.14.0")
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "rs.raf.sk"
-            artifactId = "repouploader"
-            version = "0.0.1"
-
-            from(components["java"])
-        }
-    }
-}
-
 kotlin {
     jvmToolchain(25)
 }
