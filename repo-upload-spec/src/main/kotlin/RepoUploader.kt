@@ -21,11 +21,12 @@ abstract class RepoUploader() {
         val fullPath = getFullPath(nameParts, repoPath)
         fullPath.createDirectories()
 
-        val newFileName = "${nameParts.first}-${nameParts.second}-${nameParts.third}"
+        var newFileName = "${nameParts.first}-${nameParts.second}-${nameParts.third}"
 
         var file : File? = null
         try{
             file = File(filePath)
+            newFileName = newFileName.plus(".${getFileExtension(file)}")
             file.copyTo(File(fullPath.resolve(newFileName).toString()), false)
             generateFileConfig(nameParts, fullPath, newFileName, dependencies)
 
@@ -36,6 +37,10 @@ abstract class RepoUploader() {
                 println("Uploading ${file.name} to $fullPath ...")
             }
         }
+    }
+
+    fun getFileExtension(file : File): String{
+        return file.extension
     }
 
     fun getFullPath(nameParts: Triple<String, String, String>, repoPath: Path) : Path {
