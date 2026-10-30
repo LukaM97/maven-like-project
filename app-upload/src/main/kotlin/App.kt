@@ -9,7 +9,7 @@ fun main() {
 
     val filePath = getFilePath(scanner)
     val nameParts = setFileName(scanner)
-    val dependencies = arrayOf("ls-ideademos-1.0.0","ls-proj1-1.2.0")
+    //val dependencies = arrayOf("ls-ideademos-1.0.0","ls-proj1-1.2.0")
 
     val serviceLoader = ServiceLoader.load(RepoUploader::class.java)
     val exporterServices = mutableMapOf<String,RepoUploader> ()
@@ -18,7 +18,7 @@ fun main() {
             service -> exporterServices.put(service.type.toString(), service)
     }
 
-    exporterServices.get(RepoType.LOCAL.toString())!!.upload(filePath,nameParts, dependencies)
+    exporterServices.get(RepoType.LOCAL.toString())!!.upload(filePath,nameParts, emptyArray())
 }
 
 fun getFilePath(scanner : Scanner): String{

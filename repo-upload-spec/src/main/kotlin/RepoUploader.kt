@@ -2,10 +2,12 @@ import com.google.gson.Gson
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
 
 abstract class RepoUploader() {
 
     abstract val type : RepoType
+    internal val allowedExtensions : Array<String> = arrayOf("rar","zip","json","jar")
 
     abstract fun initializeRepository() : Path
 
@@ -13,29 +15,41 @@ abstract class RepoUploader() {
 
         val repoPath = initializeRepository()
 
+        val file : File = File(filePath)
+        if(!file.exists()) {
+            println("File does not exist at: $filePath")
+            return
+        }
+
+        if(!allowedExtensions.contains(file.extension)) {
+            println("Invalid file extension.")
+            return
+        }
+
         if(!checkDependencies(dependencies, repoPath)){
             print("Missing dependencies in the repository")
             return
         }
 
+        val newFileName = "${nameParts.first}-${nameParts.second}-${nameParts.third}.${file.extension}"
+
         val fullPath = getFullPath(nameParts, repoPath)
-        fullPath.createDirectories()
+        if(!fullPath.exists()){
+            fullPath.createDirectories()
+        }
+        if(fullPath.resolve(newFileName).exists()){
+            println("File already exists")
+            return
+        }
 
-        var newFileName = "${nameParts.first}-${nameParts.second}-${nameParts.third}"
-
-        var file : File? = null
         try{
-            file = File(filePath)
-            newFileName = newFileName.plus(".${file.extension}")
             file.copyTo(File(fullPath.resolve(newFileName).toString()), false)
             generateFileConfig(nameParts, fullPath, newFileName, dependencies)
 
         }catch(e : Exception){
             println(e.message)
         }finally {
-            if(file != null) {
-                println("Uploading ${file.name} to $fullPath ...")
-            }
+            println("Uploading ${file.name} to $fullPath ...")
         }
     }
 
@@ -60,7 +74,7 @@ abstract class RepoUploader() {
             exists = true
         }
         dependencies.forEach { dependency ->
-            var nameParts = dependency.split("-").toTypedArray()
+            val nameParts = dependency.split("-").toTypedArray()
             exists = checkNestedFolders(repoPath.toFile(), nameParts, dependency)
             if(!exists) return false
         }
@@ -70,8 +84,6 @@ abstract class RepoUploader() {
 
     protected fun createRootConfig(repoPath : Path) {
         val gson : Gson = Gson()
-
-        val allowedExtensions : Array<String> = arrayOf(".rar",".zip",".json",".jar")
 
         val scopes = arrayOf(
             mapOf("name" to "compile", "transitive" to "true"),
@@ -103,6 +115,5 @@ abstract class RepoUploader() {
 
         val targetFile = File(fullPath.toFile(), "$newFileName.json")
         targetFile.writeText(fileConfig)
-
     }
 }
