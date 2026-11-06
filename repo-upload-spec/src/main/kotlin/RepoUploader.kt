@@ -5,9 +5,9 @@ import kotlin.io.path.exists
 
 abstract class RepoUploader() {
     abstract val type : RepoType
-    protected val allowedExtensions : Array<String> = arrayOf("rar","zip","json","jar")
-    open var rcm = RepoConfigManager(allowedExtensions)
-    val dv = DependencyValidator()
+    private val allowedExtensions : Array<String> = arrayOf("rar","zip","json","jar")
+    var rcm = RepoConfigManager(allowedExtensions)
+    private val dv = DependencyValidator()
 
     abstract fun initializeRepository() : Path
 

@@ -1,7 +1,7 @@
 import java.io.File
 import java.nio.file.Path
 
-class DependencyValidator {
+internal class DependencyValidator {
 
     fun checkDependencies(dependencies: Array<String>, repoPath: Path) : Boolean {
         var exists = false
