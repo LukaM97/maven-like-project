@@ -12,14 +12,14 @@ class LocalRepoUploader() : RepoUploader() {
 
     override fun initializeRepository() : Path {
         val repoDir = rootPath.resolve("repo_").toFile()
-        if(!repoDir.exists()) {
+        if (!repoDir.exists()) {
             repoPath = Files.createDirectory(repoDir.toPath())
             println("----------------------------------")
             println("root folder created at $rootPath")
             println("----------------------------------")
 
-            createRootConfig(repoPath!!)
-        }else{
+            rcm.createRootConfig(repoPath!!)
+        } else {
             repoPath = repoDir.toPath()
         }
 
