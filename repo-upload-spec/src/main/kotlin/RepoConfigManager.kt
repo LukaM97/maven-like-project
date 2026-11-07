@@ -21,7 +21,7 @@ class RepoConfigManager(private val allowedExtensions : Array<String>) {
         targetFile.writeText(rootConfig)
     }
 
-    internal fun generateFileConfig(nameParts : Triple<String,String,String>, fullPath : Path, newFileName : String, dependencies: Array<String>) {
+    fun generateFileConfig(nameParts : Triple<String,String,String>, fullPath : Path, newFileName : String, dependencies: Array<String>) {
         val jsonMap =  mapOf(
             "group" to nameParts.first,
             "project" to nameParts.second,

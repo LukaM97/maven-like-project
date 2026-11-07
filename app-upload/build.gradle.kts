@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":utils"))
     implementation(project(":repo-upload-spec"))
     runtimeOnly(project(":repo-upload-local"))
+    runtimeOnly(project(":repo-upload-drive"))
 }
 
 application {
