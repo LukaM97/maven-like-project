@@ -24,4 +24,5 @@ include(":utils")
 
 rootProject.name = "repo-project"
 include("repo-upload-spec")
-include("repo-upload-local")
+include("repo-local")
+include("repo-drive")
