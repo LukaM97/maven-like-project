@@ -1,9 +1,11 @@
 import java.io.File
+import rs.raf.drive.GoogleDriveAuth
 
 abstract class RepoUploader() {
     abstract val type : RepoType
     protected val allowedExtensions : Array<String> = arrayOf("rar","zip","json","jar")
-    var rcm = RepoConfigManager(allowedExtensions)
+    val drive = GoogleDriveAuth.connect()
+    var rcm = RepoConfigManager(allowedExtensions, drive)
 
     abstract fun initializeRepository()
     abstract fun upload(file: File, nameParts: Triple<String, String, String>, dependencies: Array<String>)

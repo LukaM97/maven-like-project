@@ -8,7 +8,7 @@ import java.nio.file.Paths
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 
-class LocalRepoUploader() : RepoUploader() {
+class LocalRepoDriver() : RepoUploader() {
     override val type = RepoType.LOCAL
     private val dv = LocalDependencyValidator()
     val rootPath: Path = Paths.get(System.getProperty("user.home"), "Desktop")
@@ -22,13 +22,16 @@ class LocalRepoUploader() : RepoUploader() {
             println("root folder created at $rootPath")
             println("----------------------------------")
 
-            rcm.createRootConfig(repoPath!!)
+            rcm.createLocalRootConfig(repoPath!!)
         } else {
             repoPath = repoDir.toPath()
         }
     }
 
     override fun upload(file: File, nameParts: Triple<String, String, String>, dependencies: Array<String>) {
+
+        initializeRepository()
+
         if(!dv.checkDependencies(dependencies, repoPath!!)){
             print("Missing dependencies in the repository")
             return
@@ -47,7 +50,7 @@ class LocalRepoUploader() : RepoUploader() {
 
         try{
             file.copyTo(File(fullPath.resolve(newFileName).toString()), false)
-            rcm.generateFileConfig(nameParts, fullPath, newFileName, dependencies)
+            rcm.generateLocalFileConfig(nameParts, fullPath, newFileName, dependencies)
 
         }catch(e : Exception){
             println(e.message)
