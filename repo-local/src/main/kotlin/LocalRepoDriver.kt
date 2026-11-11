@@ -1,6 +1,6 @@
 package local_repo
 
-import RepoUploader
+import RepoManager
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -8,7 +8,7 @@ import java.nio.file.Paths
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 
-class LocalRepoDriver() : RepoUploader() {
+class LocalRepoDriver() : RepoManager() {
     override val type = RepoType.LOCAL
     private val dv = LocalDependencyValidator()
     val rootPath: Path = Paths.get(System.getProperty("user.home"), "Desktop")
@@ -61,6 +61,18 @@ class LocalRepoDriver() : RepoUploader() {
 
     fun getFullPath(nameParts: Triple<String, String, String>, repoPath: Path) : Path {
         return repoPath.resolve(nameParts.first).resolve(nameParts.second).resolve(nameParts.third)
+    }
+
+    override fun download(downloadPath: String) {
+        val targetFile = File(repoPath.toString())
+
+        try{
+            targetFile.copyTo(File(downloadPath), false)
+        }catch(e : Exception){
+            println(e.message)
+        }finally {
+            println("Downloading $targetFile to $downloadPath ...")
+        }
     }
 
 }

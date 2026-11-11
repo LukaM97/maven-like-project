@@ -10,7 +10,9 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":repo-spec"))
     implementation(project(":repo-upload-spec"))
+    implementation(project(":repo-download-spec"))
 }
 
 kotlin {

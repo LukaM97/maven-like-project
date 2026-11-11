@@ -1,7 +1,7 @@
 package rs.raf.sk
 
+import RepoManager
 import java.util.Scanner
-import RepoUploader
 import java.util.ServiceLoader
 
 fun main() {
@@ -11,8 +11,8 @@ fun main() {
     val nameParts = setFileName(scanner)
     //val dependencies = arrayOf("ls-ideademos-1.0.0.zip","ls-proj1-1.2.0.zip")
 
-    val serviceLoader = ServiceLoader.load(RepoUploader::class.java)
-    val exporterServices = mutableMapOf<String,RepoUploader> ()
+    val serviceLoader = ServiceLoader.load(RepoManager::class.java)
+    val exporterServices = mutableMapOf<String,RepoManager> ()
 
     serviceLoader.forEach{
             service -> exporterServices.put(service.type.toString(), service)

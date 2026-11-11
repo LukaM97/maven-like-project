@@ -2,7 +2,7 @@ import com.google.api.services.drive.model.File as DriveFile
 import com.google.api.client.http.FileContent
 import java.io.File
 
-class DriveRepoDriver : RepoUploader() {
+class DriveRepoDriver : RepoManager() {
     override val type = RepoType.DRIVE
     val folderManager = FolderManager()
 
@@ -38,5 +38,9 @@ class DriveRepoDriver : RepoUploader() {
         rcm.generateDriveFileConfig(nameParts,currentParent.id, dependencies)
 
         println("Uploading ${uploaded.name} to google drive...")
+    }
+
+    override fun download(downloadPath: String) {
+        TODO("Not yet implemented")
     }
 }

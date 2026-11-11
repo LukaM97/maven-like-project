@@ -26,3 +26,6 @@ rootProject.name = "repo-project"
 include("repo-upload-spec")
 include("repo-local")
 include("repo-drive")
+include("repo-download-spec")
+include("repo-spec")
+include("repo-download-spec")
