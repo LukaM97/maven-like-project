@@ -13,6 +13,9 @@ dependencies {
     implementation(project(":repo-spec"))
     implementation(project(":repo-upload-spec"))
     implementation(project(":repo-download-spec"))
+
+    // Source: https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation("com.google.code.gson:gson:2.14.0")
 }
 
 kotlin {

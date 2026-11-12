@@ -25,16 +25,16 @@ class RepoConfigManager(private val allowedExtensions : Array<String>, var drive
         targetFile.writeText(rootConfig)
     }
 
-    fun generateLocalFileConfig(nameParts : Triple<String,String,String>, fullPath : Path, dependencies: Array<String>){
+    fun generateLocalFileConfig(nameParts : List<String>, fullPath : Path, dependencies: Array<String>){
         val jsonMap =  mapOf(
-            "group" to nameParts.first,
-            "project" to nameParts.second,
-            "version" to nameParts.third,
+            "group" to nameParts[0],
+            "project" to nameParts[1],
+            "version" to nameParts[2],
             "dependencies" to dependencies
         )
 
         val fileConfig = gson.toJson(jsonMap)
-        val newFileName = "${nameParts.first}-${nameParts.second}-${nameParts.third}"
+        val newFileName = "${nameParts[0]}-${nameParts[1]}-${nameParts[2]}"
 
         val targetFile = File(fullPath.toFile(), "$newFileName.json")
         targetFile.writeText(fileConfig)
@@ -73,19 +73,19 @@ class RepoConfigManager(private val allowedExtensions : Array<String>, var drive
     }
 
     fun generateDriveFileConfig(
-        nameParts: Triple<String, String, String>,
+        nameParts: List<String>,
         parentId: String,
         dependencies: Array<String>
     ) {
         val jsonMap =  mapOf(
-            "group" to nameParts.first,
-            "project" to nameParts.second,
-            "version" to nameParts.third,
+            "group" to nameParts[0],
+            "project" to nameParts[1],
+            "version" to nameParts[2],
             "dependencies" to dependencies
         )
 
         val fileConfig = gson.toJson(jsonMap)
-        val configFile = File.createTempFile("${nameParts.second}_config", ".json")
+        val configFile = File.createTempFile("${nameParts[1]}_config", ".json")
             .apply {
                 writeText(fileConfig)
                 deleteOnExit()
@@ -93,7 +93,7 @@ class RepoConfigManager(private val allowedExtensions : Array<String>, var drive
 
         drive.files().create(
             DriveFile()
-                .setName("${nameParts.first}_config.json")
+                .setName("${nameParts[0]}_config.json")
                 .setParents(listOf(parentId)),
             FileContent("application/json", configFile)
         ).setFields("id").execute()

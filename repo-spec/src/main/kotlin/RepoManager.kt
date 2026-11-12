@@ -9,10 +9,10 @@ abstract class RepoManager : RepoUploader, RepoDownloader {
     var rcm = RepoConfigManager(allowedExtensions, drive)
 
     abstract fun initializeRepository()
-    abstract fun upload(file: File, nameParts: Triple<String, String, String>, dependencies: Array<String>)
-    abstract fun download(downloadPath: String, folderNames: Triple<String, String, String>)
+    abstract fun upload(file: File, nameParts: List<String>, dependencies: Array<String>)
+    abstract fun download(downloadPath: String, folderNames: List<String>)
 
-    override fun upload(filePath: String, nameParts: Triple<String, String, String>, dependencies: Array<String>){
+    override fun upload(filePath: String, nameParts: List<String>, dependencies: Array<String>){
         val file : File = File(filePath)
         if(!file.exists()) {
             println("File does not exist at: $filePath")
@@ -27,7 +27,7 @@ abstract class RepoManager : RepoUploader, RepoDownloader {
         upload(file, nameParts, dependencies)
     }
 
-    override fun download(folderNames : Triple<String, String, String>) {
+    override fun download(folderNames : List<String>) {
         val scanner = Scanner(System.`in`)
 
         println("Enter the path where you want to download the library:")

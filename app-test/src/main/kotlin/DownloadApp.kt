@@ -16,9 +16,7 @@ fun main() {
 
     val lines = file.readLines()
     for (line in lines) {
-        val folders = line.split(":")
-
-        val folderNames = Triple(folders[0], folders[1], folders[2])
+        val folderNames = line.split(":")
 
         exporterServices.get(RepoType.LOCAL.toString())!!.download(folderNames)
     }

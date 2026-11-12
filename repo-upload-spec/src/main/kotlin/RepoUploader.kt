@@ -1,3 +1,3 @@
 interface RepoUploader {
-    fun upload(filePath: String, nameParts: Triple<String, String, String>, dependencies: Array<String>)
+    fun upload(filePath: String, nameParts: List<String>, dependencies: Array<String>)
 }

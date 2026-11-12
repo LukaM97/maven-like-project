@@ -3,6 +3,7 @@ package rs.raf.sk
 import RepoManager
 import java.util.Scanner
 import java.util.ServiceLoader
+import kotlin.emptyArray
 
 fun main() {
     val scanner = Scanner(System.`in`)
@@ -19,7 +20,7 @@ fun main() {
     }
 
     //exporterServices.get(RepoType.LOCAL.toString())!!.upload(filePath,nameParts, dependencies)
-    exporterServices.get(RepoType.DRIVE.toString())!!.upload(filePath,nameParts, emptyArray())
+    exporterServices.get(RepoType.DRIVE.toString())!!.upload(filePath,nameParts, emptyArray<String>())
 }
 
 fun getFilePath(scanner : Scanner): String{
@@ -36,7 +37,7 @@ fun getFilePath(scanner : Scanner): String{
     return filePath
 }
 
-fun setFileName(scanner: Scanner) : Triple<String,String, String> {
+fun setFileName(scanner: Scanner) : List<String> {
     var groupName : String? = null
     var projectName : String? = null
     var version : String? = null
@@ -48,5 +49,5 @@ fun setFileName(scanner: Scanner) : Triple<String,String, String> {
     println("version: ")
     version = scanner.nextLine()
 
-    return Triple(groupName, projectName, version)
+    return listOf(groupName,projectName,version)
 }

@@ -33,7 +33,7 @@ internal class LocalDependencyValidator : DependencyValidator<Path> {
         return nextFolder.exists() && checkNestedFolders(nextFolder, parts, fileName, index + 1)
     }
 
-    private fun prepareFolderNames(nameParts: MutableList<String>){
+    internal fun prepareFolderNames(nameParts: MutableList<String>){
         val lastNamePart = nameParts.last().split(".").toMutableList()
         lastNamePart.removeLast()
         val lastFolderName = lastNamePart.joinToString(separator = ".")

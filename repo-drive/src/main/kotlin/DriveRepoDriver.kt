@@ -14,7 +14,7 @@ class DriveRepoDriver : RepoManager() {
         println("----------------------------------")
     }
 
-    override fun upload(file: File, nameParts: Triple<String, String, String>, dependencies: Array<String>) {
+    override fun upload(file: File, nameParts: List<String>, dependencies: Array<String>) {
 
         initializeRepository()
 
@@ -40,7 +40,7 @@ class DriveRepoDriver : RepoManager() {
         println("Uploading ${uploaded.name} to google drive...")
     }
 
-    override fun download(downloadPath: String, folderNames: Triple<String, String, String>) {
+    override fun download(downloadPath: String, folderNames: List<String>) {
         TODO("Not yet implemented")
     }
 }

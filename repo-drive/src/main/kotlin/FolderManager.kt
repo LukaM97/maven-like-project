@@ -28,7 +28,7 @@ class FolderManager {
         return folder!!
     }
 
-    fun createFolder(drive: Drive, nameParts: Triple<String, String, String>): DriveFile {
+    fun createFolder(drive: Drive, nameParts: List<String>): DriveFile {
         val currentParent = folder
 
         nameParts.toList().forEach { name ->
