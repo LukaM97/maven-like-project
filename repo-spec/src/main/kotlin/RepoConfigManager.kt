@@ -25,7 +25,7 @@ class RepoConfigManager(private val allowedExtensions : Array<String>, var drive
         targetFile.writeText(rootConfig)
     }
 
-    fun generateLocalFileConfig(nameParts : Triple<String,String,String>, fullPath : Path, newFileName : String, dependencies: Array<String>){
+    fun generateLocalFileConfig(nameParts : Triple<String,String,String>, fullPath : Path, dependencies: Array<String>){
         val jsonMap =  mapOf(
             "group" to nameParts.first,
             "project" to nameParts.second,
@@ -34,6 +34,7 @@ class RepoConfigManager(private val allowedExtensions : Array<String>, var drive
         )
 
         val fileConfig = gson.toJson(jsonMap)
+        val newFileName = "${nameParts.first}-${nameParts.second}-${nameParts.third}"
 
         val targetFile = File(fullPath.toFile(), "$newFileName.json")
         targetFile.writeText(fileConfig)
