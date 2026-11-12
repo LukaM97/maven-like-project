@@ -1,3 +1,3 @@
 interface RepoDownloader {
-    fun download()
+    fun download(folderNames : Triple<String, String, String>)
 }

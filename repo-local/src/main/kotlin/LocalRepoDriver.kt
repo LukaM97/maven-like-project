@@ -63,15 +63,29 @@ class LocalRepoDriver() : RepoManager() {
         return repoPath.resolve(nameParts.first).resolve(nameParts.second).resolve(nameParts.third)
     }
 
-    override fun download(downloadPath: String) {
-        val targetFile = File(repoPath.toString())
+    override fun download(downloadPath: String, folderNames: Triple<String, String, String>) {
+
+        repoPath = rootPath.resolve("repo_")
+
+        if(repoPath == null || !repoPath!!.exists()){
+            throw Exception("Repository folder not found")
+        }
+
+        val fullPath = getFullPath(folderNames, repoPath!!)
+        if(!fullPath.exists()){
+            println("File does not exist")
+            return
+        }
+        val targetFolder = File(fullPath.toString())
+        val folderFiles = targetFolder.listFiles()
+        val targetFile = folderFiles!![0]
 
         try{
-            targetFile.copyTo(File(downloadPath), false)
+            targetFile.copyTo(File(downloadPath.plus("\\${targetFile.name}")), false)
         }catch(e : Exception){
             println(e.message)
         }finally {
-            println("Downloading $targetFile to $downloadPath ...")
+            println("Downloading ${targetFile.name} to $downloadPath ...")
         }
     }
 
