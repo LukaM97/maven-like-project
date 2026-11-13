@@ -68,28 +68,72 @@ class LocalRepoDriver() : RepoManager() {
             throw Exception("Repository folder not found")
         }
 
-        val fullPath = getFullPath(folderNames, repoPath!!)
-        if(!fullPath.exists()){
+        val pathToRepoLib = getFullPath(folderNames, repoPath!!)
+        if(!pathToRepoLib.exists()){
             println("File does not exist")
             return
         }
-        val targetFolder = File(fullPath.toString())
-        val folderFiles = targetFolder.listFiles()!!
-        val targetFile = folderFiles[0]
-        val configFile = folderFiles[1]
+        val folderFiles = File(pathToRepoLib.toString()).listFiles()!!
+        val targetFile = folderFiles.firstOrNull{!it.name.endsWith(".json")}?:throw Exception("File not found")
+        val configFile = folderFiles.firstOrNull{it.name.endsWith(".json")}?:throw Exception("File not found")
         val dependencies = getDependencies(configFile)
-        downloadDependencies(dependencies, downloadPath)
-
-        try{
-            targetFile.copyTo(File(downloadPath.plus("\\${targetFile.name}")), false)
-            println("Downloading ${targetFile.name} to $downloadPath ...")
-        }catch(e : Exception){
-            println(e.message)
+        if(dependencies.isNotEmpty()){
+            downloadDependencies(dependencies, downloadPath)
         }
+
+        processAndCopyFile(downloadPath, targetFile)
     }
 
     fun getFullPath(nameParts: List<String>, repoPath: Path) : Path {
         return repoPath.resolve(nameParts[0]).resolve(nameParts[1]).resolve(nameParts[2])
+    }
+
+    fun processAndCopyFile(downloadPath: String, fileInRepo: File) {
+        val dir = File(downloadPath)
+        if(!dir.exists()) dir.mkdirs()
+
+        val baseFileName = fileInRepo.name.substringBeforeLast("-")
+        val dirFiles = dir.listFiles(){file -> file.isFile && file.name.startsWith(baseFileName) }
+        if(dirFiles.isNullOrEmpty()){
+            fileInRepo.copyTo(File(dir, fileInRepo.name), overwrite = false)
+            println("Downloading ${fileInRepo.name} to $downloadPath ...")
+            return
+        }
+        val fileInDir = dirFiles.first()
+
+        val v1 = extractVersion(fileInRepo)
+        val v2 = extractVersion(fileInDir)
+
+        val comparedValue = compare(v1, v2)
+
+        if(comparedValue > 0){
+            fileInRepo.copyTo(File(downloadPath.plus("\\${fileInRepo.name}")), true)
+            fileInDir.delete()
+            println("Updated to newer version: ${fileInRepo.name}")
+        }else {
+            println("Skipping ${fileInRepo.name}; an equal or newer version already exists.")
+        }
+
+    }
+
+    private fun compare(firstVersion : List<Int>,secondVersion : List<Int>) : Int{
+        var i = 0
+        var q = 0
+        while(i < firstVersion.size && i < secondVersion.size) {
+            if(firstVersion[i] != secondVersion[i]) {
+                q = firstVersion[i].compareTo(secondVersion[i])
+                break
+            }
+            i++
+        }
+        return q
+    }
+
+    private fun extractVersion(file : File) : List<Int> {
+        return file.name.split("-").last()
+                .split(".")
+                .dropLast(1)
+                .map { it.toInt() }
     }
 
     fun getDependencies(configFile : File) : List<String> {

@@ -1,1 +1,3 @@
 rs.raf.sk:asad:0.0.1
+rs.raf.sk:asad:1.0.0
+ds:kpp:2.0.0
