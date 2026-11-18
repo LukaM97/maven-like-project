@@ -5,13 +5,13 @@ import java.io.File
 class FileManager {
 
     fun processAndCopyFile(downloadPath: String, fileInRepo: File) {
-        val dir = File(downloadPath)
-        if(!dir.exists()) dir.mkdirs()
+        val downloadDir = File(downloadPath)
+        if(!downloadDir.exists()) downloadDir.mkdirs()
 
         val baseFileName = fileInRepo.name.substringBeforeLast("-")
-        val dirFiles = dir.listFiles(){file -> file.isFile && file.name.startsWith(baseFileName) }
+        val dirFiles = downloadDir.listFiles(){file -> file.isFile && file.name.startsWith(baseFileName) }
         if(dirFiles.isNullOrEmpty()){
-            fileInRepo.copyTo(File(dir, fileInRepo.name), overwrite = false)
+            fileInRepo.copyTo(File(downloadDir, fileInRepo.name), overwrite = false)
             println("Downloading ${fileInRepo.name} to $downloadPath ...")
             return
         }
