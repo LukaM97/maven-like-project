@@ -10,7 +10,9 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":repo-spec"))
     implementation(project(":repo-upload-spec"))
+    implementation(project(":repo-download-spec"))
     implementation(
         "com.google.api-client:google-api-client:2.9.2")
     implementation(
