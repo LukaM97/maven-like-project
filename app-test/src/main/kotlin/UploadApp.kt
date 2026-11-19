@@ -20,9 +20,9 @@ fun main() {
             service -> exporterServices.put(service.type.toString(), service)
     }
 
-    exporterServices.get(RepoType.LOCAL.toString())!!.upload(filePath,nameParts, emptyArray())
+    //exporterServices.get(RepoType.LOCAL.toString())!!.upload(filePath,nameParts, emptyArray())
     //exporterServices.get(RepoType.LOCAL.toString())!!.upload(filePath,nameParts, dependencies)
-    //exporterServices.get(RepoType.DRIVE.toString())!!.upload(filePath,nameParts, emptyArray<String>())
+    exporterServices.get(RepoType.DRIVE.toString())!!.upload(filePath,nameParts, emptyArray<String>())
 }
 
 fun getFilePath(scanner : Scanner): String{

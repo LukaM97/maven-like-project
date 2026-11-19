@@ -4,10 +4,11 @@ import java.io.File
 
 class DriveRepoDriver : RepoManager() {
     override val type = RepoType.DRIVE
-    val folderManager = FolderManager()
+    val folderManager = FolderManager(drive)
+    val fileManager = DriveFileManager(drive)
 
     override fun initializeRepository() {
-        val folder = folderManager.createRootFolder(drive)
+        val folder = folderManager.createRootFolder()
         rcm.createDriveRootConfig()
         println("----------------------------------")
         println("root folder ${folder.id} created")
@@ -18,7 +19,7 @@ class DriveRepoDriver : RepoManager() {
 
         initializeRepository()
 
-        val currentParent = folderManager.createFolder(drive,nameParts)
+        val currentParent = folderManager.createFolder(nameParts)
 
         val type = when{
             file.name.endsWith(".zip") -> "application/zip"
@@ -41,6 +42,13 @@ class DriveRepoDriver : RepoManager() {
     }
 
     override fun download(downloadPath: String, folderNames: List<String>) {
-        TODO("Not yet implemented")
+        val targetFolderId = folderManager.resolveFolderPath(folderNames)
+        val targetFile = fileManager.getTargetFile(targetFolderId)
+
+        fileManager.saveFile(downloadPath, targetFile)
     }
+
+
+
+
 }

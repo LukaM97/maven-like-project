@@ -2,7 +2,7 @@ package local_repo
 
 import java.io.File
 
-class FileManager {
+class LocalFileManager {
 
     fun processAndCopyFile(downloadPath: String, fileInRepo: File) {
         val downloadDir = File(downloadPath)

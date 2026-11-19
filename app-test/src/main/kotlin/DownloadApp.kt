@@ -15,11 +15,15 @@ fun main() {
     }
 
     val lines = file.readLines()
-    for (line in lines) {
+    /*for (line in lines) {
         val folderNames = line.split(":")
 
         exporterServices.get(RepoType.LOCAL.toString())!!.download(folderNames)
-    }
+    }*/
+
+    val folderNames = lines.first().split(":")
+
+    exporterServices.get(RepoType.DRIVE.toString())!!.download(folderNames)
 
 
 }

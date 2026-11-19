@@ -11,7 +11,7 @@ import kotlin.io.path.exists
 class LocalRepoDriver() : RepoManager() {
     override val type = RepoType.LOCAL
     private val dv = LocalDependencyValidator()
-    private val fm = FileManager()
+    private val fm = LocalFileManager()
     val rootPath: Path = Paths.get(System.getProperty("user.home"), "Desktop")
     var repoPath : Path? = null
 
