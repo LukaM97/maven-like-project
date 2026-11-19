@@ -85,7 +85,7 @@ class RepoConfigManager(private val allowedExtensions : Array<String>, var drive
         )
 
         val fileConfig = gson.toJson(jsonMap)
-        val configFile = File.createTempFile("${nameParts[1]}_config", ".json")
+        val configFile = File.createTempFile("${nameParts[0]}-${nameParts[1]}-${nameParts[2]}", ".json")
             .apply {
                 writeText(fileConfig)
                 deleteOnExit()
@@ -93,7 +93,7 @@ class RepoConfigManager(private val allowedExtensions : Array<String>, var drive
 
         drive.files().create(
             DriveFile()
-                .setName("${nameParts[0]}_config.json")
+                .setName("${nameParts[0]}-${nameParts[1]}-${nameParts[2]}.json")
                 .setParents(listOf(parentId)),
             FileContent("application/json", configFile)
         ).setFields("id").execute()

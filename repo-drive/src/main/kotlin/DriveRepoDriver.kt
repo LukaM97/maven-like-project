@@ -29,12 +29,14 @@ class DriveRepoDriver : RepoManager() {
             else -> return
         }
 
+        val fullFileName = "${nameParts[0]}-${nameParts[1]}-${nameParts[2]}.${file.extension}"
+
         val uploaded = drive.files().create(
             DriveFile()
-                .setName(file.name)
+                .setName(fullFileName)
                 .setParents(listOf(currentParent.id)),
             FileContent(type, file)
-        ).setFields("id").execute()
+        ).setFields("id, name").execute()
 
         rcm.generateDriveFileConfig(nameParts,currentParent.id, dependencies)
 
@@ -45,7 +47,7 @@ class DriveRepoDriver : RepoManager() {
         val targetFolderId = folderManager.resolveFolderPath(folderNames)
         val targetFile = fileManager.getTargetFile(targetFolderId)
 
-        fileManager.saveFile(downloadPath, targetFile)
+        fileManager.processAndSaveFile(downloadPath, targetFile)
     }
 
 

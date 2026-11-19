@@ -3,7 +3,7 @@ import java.io.FileOutputStream
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.model.File as DriveFile
 
-class DriveFileManager(val drive: Drive) {
+class DriveFileManager(val drive: Drive) : FileManager() {
 
     fun getTargetFile(currentParentId: String) : DriveFile {
         val files = drive.files().list()
@@ -16,18 +16,47 @@ class DriveFileManager(val drive: Drive) {
         return files.firstOrNull{file -> !file.name.endsWith(".json")} ?: throw Exception("File not found")
     }
 
-    fun saveFile(downloadPath: String, targetFile: DriveFile) {
-        val folder = File(downloadPath)
-        folder.mkdirs()
+    fun processAndSaveFile(downloadPath: String, targetFile: DriveFile) {
+        val downloadDir = File(downloadPath)
+        if(!downloadDir.exists()) downloadDir.mkdirs()
 
-        try {
-            FileOutputStream(File(folder, targetFile.name)).use { outputStream ->
-                drive.files().get(targetFile.id)
-                    .executeMediaAndDownloadTo(outputStream)
+        val fileBaseName = targetFile.name.substringBeforeLast("-")
+        val dirFiles = downloadDir.listFiles(){file -> file.isFile && file.name.startsWith(fileBaseName) }
+        if(dirFiles.isNullOrEmpty()) {
+
+            try {
+                FileOutputStream(File(downloadDir, targetFile.name)).use { outputStream ->
+                    drive.files().get(targetFile.id)
+                        .executeMediaAndDownloadTo(outputStream)
+                }
+                print("Downloading ${targetFile.name} to ${downloadDir.name}")
+                return
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            print("Downloading ${targetFile.name} to ${folder.name}")
-        }catch (e:Exception){
-            e.printStackTrace()
         }
+
+        val fileInDir = dirFiles.first()
+
+        val v1 = extractVersion(targetFile.name)
+        val v2 = extractVersion(fileInDir.name)
+
+        val comparedValue = compare(v1, v2)
+
+        if(comparedValue > 0){
+            try{
+                FileOutputStream(File(downloadDir, targetFile.name)).use { outputStream ->
+                    drive.files().get(targetFile.id)
+                        .executeMediaAndDownloadTo(outputStream)
+                }
+                fileInDir.delete()
+            }catch (e: Exception){
+                println(e.message)
+            }
+            println("Updated to newer version: ${targetFile.name}")
+        }else {
+            println("Skipping ${targetFile.name}; an equal or newer version already exists.")
+        }
+
     }
 }

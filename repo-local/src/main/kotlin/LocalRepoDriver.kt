@@ -38,13 +38,13 @@ class LocalRepoDriver() : RepoManager() {
             return
         }
 
-        val newFileName = "${nameParts[0]}-${nameParts[1]}-${nameParts[2]}.${file.extension}"
+        val newFileName = "${nameParts[0]}-${nameParts[1]}-${nameParts[2]}"
 
         val fullPath = getFullPath(nameParts, repoPath!!)
         if(!fullPath.exists()){
             fullPath.createDirectories()
         }
-        if(fullPath.resolve(newFileName).exists()){
+        if(fullPath.resolve(newFileName.plus(".${file.extension}")).exists()){
             println("File already exists")
             return
         }
