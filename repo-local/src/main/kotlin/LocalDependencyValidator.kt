@@ -46,14 +46,7 @@ internal class LocalDependencyValidator : DependencyValidator<Path>() {
     private fun getDependencies(configFile : File) : List<String> {
         val gson : Gson = Gson()
 
-        class FileConfig(
-            val group: String,
-            val project: String,
-            val version: String,
-            val dependencies: List<String>
-        )
-
-        val configObj = gson.fromJson(configFile.readText(),FileConfig::class.java)
-        return configObj.dependencies
+        val configObj = gson.fromJson(configFile.readText(),fileConfig::class.java)
+        return configObj.dependencies.toList()
     }
 }

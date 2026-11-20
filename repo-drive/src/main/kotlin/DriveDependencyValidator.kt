@@ -86,13 +86,6 @@ class DriveDependencyValidator(val drive: Drive) : DependencyValidator<DriveFile
     }
 
     fun getDependencies(configFile: DriveFile): List<String> {
-        class FileConfig(
-            val group: String,
-            val project: String,
-            val version: String,
-            val dependencies: List<String>
-        )
-
         val jsonContent = drive.files().get(configFile.id)
             .executeMediaAsInputStream()
             .use { inputStream ->
@@ -101,8 +94,8 @@ class DriveDependencyValidator(val drive: Drive) : DependencyValidator<DriveFile
                     .readText()
             }
 
-        val configObj = Gson().fromJson(jsonContent, FileConfig::class.java)
-        return configObj?.dependencies ?: emptyList()
+        val configObj = Gson().fromJson(jsonContent, fileConfig::class.java)
+        return configObj?.dependencies?.toList() ?: emptyList()
     }
 
     fun getPreparedDependencyFolders(configFile : DriveFile) : List<List<String>> {

@@ -1,3 +1,5 @@
+import Model.FileConfig
+
 abstract class DependencyValidator<T> {
     abstract fun checkDependencies(dependencies: Array<String>, repoPath: T) : Boolean
 
@@ -8,4 +10,6 @@ abstract class DependencyValidator<T> {
         nameParts.removeLast()
         nameParts.addLast(lastFolderName)
     }
+
+    val fileConfig : FileConfig = FileConfig()
 }
