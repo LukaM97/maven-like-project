@@ -4,8 +4,9 @@ import java.io.File
 
 class DriveRepoDriver : RepoManager() {
     override val type = RepoType.DRIVE
-    val folderManager = FolderManager(drive)
-    val fileManager = DriveFileManager(drive)
+    private val folderManager = FolderManager(drive)
+    private val fileManager = DriveFileManager(drive)
+    private val dv = DriveDependencyValidator(drive)
 
     override fun initializeRepository() {
         val folder = folderManager.createRootFolder()
@@ -45,12 +46,16 @@ class DriveRepoDriver : RepoManager() {
 
     override fun download(downloadPath: String, folderNames: List<String>) {
         val targetFolderId = folderManager.resolveFolderPath(folderNames)
-        val targetFile = fileManager.getTargetFile(targetFolderId)
+        val targetFiles = fileManager.getTargetFile(targetFolderId)
+        val file = targetFiles.firstOrNull{!it.name.endsWith(".json")}?:throw Exception("File not found")
+        val config = targetFiles.firstOrNull{it.name.endsWith(".json")}?:throw Exception("Config file not found")
+        val dependencyFolders = dv.getPreparedDependencyFolders(config)
+        if(dependencyFolders.isNotEmpty()){
+            dependencyFolders.forEach {
+                    folderNames -> download(downloadPath, folderNames)
+            }
+        }
 
-        fileManager.processAndSaveFile(downloadPath, targetFile)
+        fileManager.processAndSaveFile(downloadPath, file)
     }
-
-
-
-
 }

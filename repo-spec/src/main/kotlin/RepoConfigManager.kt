@@ -60,6 +60,24 @@ class RepoConfigManager(private val allowedExtensions : Array<String>, var drive
 
         val parentId = getFolderId("_repo")
 
+        val result = drive.files().list()
+            .setQ(
+                "name = 'repo_config.json' " +
+                        "and '${parentId}' in parents " +
+                        "and mimeType != 'application/vnd.google-apps.folder' " +
+                        "and trashed = false"
+            )
+            .setSpaces("drive")
+            .setFields("files(id, name)")
+            .setPageSize(1)
+            .execute()
+            .files
+            .firstOrNull()
+
+        if(!result.isNullOrEmpty()){
+            return
+        }
+
         try{
             drive.files().create(
                 DriveFile()
@@ -100,9 +118,8 @@ class RepoConfigManager(private val allowedExtensions : Array<String>, var drive
     }
 
     private fun getFolderId(folderName: String): String {
-        val query = "mimeType = 'application/vnd.google-apps.folder' and name = '$folderName' and trashed = false"
         val result = drive.files().list()
-            .setQ(query)
+            .setQ("mimeType = 'application/vnd.google-apps.folder' and name = '$folderName' and trashed = false")
             .setSpaces("drive")
             .setFields("files(id, name)")
             .execute()

@@ -1,6 +1,5 @@
 import rs.raf.drive.GoogleDriveAuth
 import java.io.File
-import java.util.Scanner
 
 abstract class RepoManager : RepoUploader, RepoDownloader {
     abstract val type : RepoType
@@ -27,11 +26,11 @@ abstract class RepoManager : RepoUploader, RepoDownloader {
         upload(file, nameParts, dependencies)
     }
 
-    override fun download(folderNames : List<String>) {
-        val scanner = Scanner(System.`in`)
-
-        println("Enter the path where you want to download the library:")
-        val downloadPath = scanner.nextLine()
+    override fun download(folderNames : List<String>, downloadPath : String) {
+        if(!File(downloadPath).exists()) {
+            println("Folder not found: $downloadPath")
+            return
+        }
 
         download(downloadPath, folderNames)
     }

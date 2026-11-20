@@ -5,7 +5,7 @@ import com.google.gson.Gson
 import java.io.File
 import java.nio.file.Path
 
-internal class LocalDependencyValidator : DependencyValidator<Path> {
+internal class LocalDependencyValidator : DependencyValidator<Path>() {
 
     override fun checkDependencies(dependencies: Array<String>, repoPath: Path) : Boolean {
         var exists = false
@@ -34,15 +34,16 @@ internal class LocalDependencyValidator : DependencyValidator<Path> {
         return nextFolder.exists() && checkNestedFolders(nextFolder, parts, fileName, index + 1)
     }
 
-    private fun prepareFolderNames(nameParts: MutableList<String>){
-        val lastNamePart = nameParts.last().split(".").toMutableList()
-        lastNamePart.removeLast()
-        val lastFolderName = lastNamePart.joinToString(separator = ".")
-        nameParts.removeLast()
-        nameParts.addLast(lastFolderName)
+    internal fun getPreparedDependencyFolders(configFile : File) : List<List<String>> {
+        val dependencies = getDependencies(configFile)
+        return dependencies.map { dep ->
+            val folderNames = dep.split("-").toMutableList()
+            prepareFolderNames(folderNames)
+            folderNames
+        }
     }
 
-    fun getDependencies(configFile : File) : List<String> {
+    private fun getDependencies(configFile : File) : List<String> {
         val gson : Gson = Gson()
 
         class FileConfig(
@@ -54,14 +55,5 @@ internal class LocalDependencyValidator : DependencyValidator<Path> {
 
         val configObj = gson.fromJson(configFile.readText(),FileConfig::class.java)
         return configObj.dependencies
-    }
-
-    fun getPreparedDependencyFolders(configFile : File) : List<List<String>> {
-        val dependencies = getDependencies(configFile)
-        return dependencies.map { dep ->
-            val folderNames = dep.split("-").toMutableList()
-            prepareFolderNames(folderNames)
-            folderNames
-        }
     }
 }

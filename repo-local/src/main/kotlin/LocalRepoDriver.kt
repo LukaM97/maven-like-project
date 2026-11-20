@@ -50,7 +50,7 @@ class LocalRepoDriver() : RepoManager() {
         }
 
         try{
-            file.copyTo(File(fullPath.resolve(newFileName).toString()), false)
+            file.copyTo(File(fullPath.resolve(newFileName.plus(".${file.extension}")).toString()), false)
             rcm.generateLocalFileConfig(nameParts, fullPath, dependencies)
 
         }catch(e : Exception){
