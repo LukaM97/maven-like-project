@@ -1,15 +1,16 @@
 package local_repo
 
+import FileManager
 import java.io.File
 
-class FileManager {
+class LocalFileManager : FileManager() {
 
     fun processAndCopyFile(downloadPath: String, fileInRepo: File) {
         val downloadDir = File(downloadPath)
         if(!downloadDir.exists()) downloadDir.mkdirs()
 
-        val baseFileName = fileInRepo.name.substringBeforeLast("-")
-        val dirFiles = downloadDir.listFiles(){file -> file.isFile && file.name.startsWith(baseFileName) }
+        val fileBaseName = fileInRepo.name.substringBeforeLast("-")
+        val dirFiles = downloadDir.listFiles(){file -> file.isFile && file.name.startsWith(fileBaseName) }
         if(dirFiles.isNullOrEmpty()){
             fileInRepo.copyTo(File(downloadDir, fileInRepo.name), overwrite = false)
             println("Downloading ${fileInRepo.name} to $downloadPath ...")
@@ -17,8 +18,8 @@ class FileManager {
         }
         val fileInDir = dirFiles.first()
 
-        val v1 = extractVersion(fileInRepo)
-        val v2 = extractVersion(fileInDir)
+        val v1 = extractVersion(fileInRepo.name)
+        val v2 = extractVersion(fileInDir.name)
 
         val comparedValue = compare(v1, v2)
 
@@ -34,25 +35,5 @@ class FileManager {
             println("Skipping ${fileInRepo.name}; an equal or newer version already exists.")
         }
 
-    }
-
-    private fun compare(firstVersion : List<Int>,secondVersion : List<Int>) : Int{
-        var i = 0
-        var q = 0
-        while(i < firstVersion.size && i < secondVersion.size) {
-            if(firstVersion[i] != secondVersion[i]) {
-                q = firstVersion[i].compareTo(secondVersion[i])
-                break
-            }
-            i++
-        }
-        return q
-    }
-
-    private fun extractVersion(file : File) : List<Int> {
-        return file.name.split("-").last()
-            .split(".")
-            .dropLast(1)
-            .map { it.toInt() }
     }
 }

@@ -11,7 +11,7 @@ import kotlin.io.path.exists
 class LocalRepoDriver() : RepoManager() {
     override val type = RepoType.LOCAL
     private val dv = LocalDependencyValidator()
-    private val fm = FileManager()
+    private val fm = LocalFileManager()
     val rootPath: Path = Paths.get(System.getProperty("user.home"), "Desktop")
     var repoPath : Path? = null
 
@@ -38,19 +38,19 @@ class LocalRepoDriver() : RepoManager() {
             return
         }
 
-        val newFileName = "${nameParts[0]}-${nameParts[1]}-${nameParts[2]}.${file.extension}"
+        val newFileName = "${nameParts[0]}-${nameParts[1]}-${nameParts[2]}"
 
         val fullPath = getFullPath(nameParts, repoPath!!)
         if(!fullPath.exists()){
             fullPath.createDirectories()
         }
-        if(fullPath.resolve(newFileName).exists()){
+        if(fullPath.resolve(newFileName.plus(".${file.extension}")).exists()){
             println("File already exists")
             return
         }
 
         try{
-            file.copyTo(File(fullPath.resolve(newFileName).toString()), false)
+            file.copyTo(File(fullPath.resolve(newFileName.plus(".${file.extension}")).toString()), false)
             rcm.generateLocalFileConfig(nameParts, fullPath, dependencies)
 
         }catch(e : Exception){

@@ -1,10 +1,10 @@
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.model.File as DriveFile
 
-class FolderManager {
+class FolderManager(val drive: Drive) {
     var folder: DriveFile? = null
 
-    fun createRootFolder(drive: Drive): DriveFile {
+    fun createRootFolder(): DriveFile {
         var pageToken: String? = null
         do {
             val page = drive.files().list()
@@ -28,7 +28,7 @@ class FolderManager {
         return folder!!
     }
 
-    fun createFolder(drive: Drive, nameParts: List<String>): DriveFile {
+    fun createFolder(nameParts: List<String>): DriveFile {
         val currentParent = folder
 
         nameParts.toList().forEach { name ->
@@ -54,5 +54,29 @@ class FolderManager {
             ).setFields("id").execute().id
         }
         return currentParent!!
+    }
+
+    private fun findRootFolder() : String{
+        val repoId = drive.files().list()
+            .setQ("name = '_repo' and mimeType = 'application/vnd.google-apps.folder' and trashed = false")
+            .setFields("files(id)")
+            .execute()
+            .files.firstOrNull()?.id ?: throw Exception("Folder '_repo' not found")
+
+        return repoId
+    }
+
+    fun resolveFolderPath(folderNames: List<String>) : String{
+        var currentParentId = findRootFolder()
+
+        for (fName in folderNames) {
+            currentParentId = drive.files().list()
+                .setQ("name = '$fName' and '$currentParentId' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false")
+                .setFields("files(id)")
+                .execute()
+                .files.firstOrNull()?.id ?: throw Exception("Folder '${fName}' not found")
+        }
+
+        return currentParentId
     }
 }

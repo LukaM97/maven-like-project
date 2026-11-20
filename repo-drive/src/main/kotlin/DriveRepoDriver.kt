@@ -4,10 +4,12 @@ import java.io.File
 
 class DriveRepoDriver : RepoManager() {
     override val type = RepoType.DRIVE
-    val folderManager = FolderManager()
+    private val folderManager = FolderManager(drive)
+    private val fileManager = DriveFileManager(drive)
+    private val dv = DriveDependencyValidator(drive)
 
     override fun initializeRepository() {
-        val folder = folderManager.createRootFolder(drive)
+        val folder = folderManager.createRootFolder()
         rcm.createDriveRootConfig()
         println("----------------------------------")
         println("root folder ${folder.id} created")
@@ -18,7 +20,7 @@ class DriveRepoDriver : RepoManager() {
 
         initializeRepository()
 
-        val currentParent = folderManager.createFolder(drive,nameParts)
+        val currentParent = folderManager.createFolder(nameParts)
 
         val type = when{
             file.name.endsWith(".zip") -> "application/zip"
@@ -28,12 +30,14 @@ class DriveRepoDriver : RepoManager() {
             else -> return
         }
 
+        val fullFileName = "${nameParts[0]}-${nameParts[1]}-${nameParts[2]}.${file.extension}"
+
         val uploaded = drive.files().create(
             DriveFile()
-                .setName(file.name)
+                .setName(fullFileName)
                 .setParents(listOf(currentParent.id)),
             FileContent(type, file)
-        ).setFields("id").execute()
+        ).setFields("id, name").execute()
 
         rcm.generateDriveFileConfig(nameParts,currentParent.id, dependencies)
 
@@ -41,6 +45,17 @@ class DriveRepoDriver : RepoManager() {
     }
 
     override fun download(downloadPath: String, folderNames: List<String>) {
-        TODO("Not yet implemented")
+        val targetFolderId = folderManager.resolveFolderPath(folderNames)
+        val targetFiles = fileManager.getTargetFile(targetFolderId)
+        val file = targetFiles.firstOrNull{!it.name.endsWith(".json")}?:throw Exception("File not found")
+        val config = targetFiles.firstOrNull{it.name.endsWith(".json")}?:throw Exception("Config file not found")
+        val dependencyFolders = dv.getPreparedDependencyFolders(config)
+        if(dependencyFolders.isNotEmpty()){
+            dependencyFolders.forEach {
+                    folderNames -> download(downloadPath, folderNames)
+            }
+        }
+
+        fileManager.processAndSaveFile(downloadPath, file)
     }
 }
